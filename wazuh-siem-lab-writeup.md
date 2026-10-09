@@ -93,15 +93,15 @@ mkdir docs/setup docs/ingest docs/alerts endpoints/linux-agent endpoints/windows
 
 VM creation used VirtualBox's *Unattended Installation* feature (Ubuntu Server 24.04, 8 GB RAM / 4 vCPU / 50 GB dynamically-allocated disk — RAM/CPU was later increased from the initial 4 GB/2 vCPU baseline after a resource-related install failure described in Phase 2).
 
-> 📸 `docs/setup/00-buat-struktur-folder.png`
-> 📸 `docs/setup/01-vm-name-and-os-selection.png`
-> 📸 `docs/setup/02-unattended-install-config.png`
-> 📸 `docs/setup/03-vm-hardware-allocation.png`
-> 📸 `docs/setup/04-vm-hard-disk-config.png`
-> 📸 `docs/setup/05-network-adapter1-nat.png`
-> 📸 `docs/setup/06-network-adapter2-hostonly.png`
-> 📸 `docs/setup/07-grub-boot-menu.png` *(optional)*
-> 📸 `docs/setup/08-first-successful-login.png`
+![00 buat struktur folder](docs/setup/00-buat-struktur-folder.png)
+![01 vm name and os selection](docs/setup/01-vm-name-and-os-selection.png)
+![02 unattended install config](docs/setup/02-unattended-install-config.png)
+![03 vm hardware allocation](docs/setup/03-vm-hardware-allocation.png)
+![04 vm hard disk config](docs/setup/04-vm-hard-disk-config.png)
+![05 network adapter1 nat](docs/setup/05-network-adapter1-nat.png)
+![06 network adapter2 hostonly](docs/setup/06-network-adapter2-hostonly.png)
+![07 grub boot menu](docs/setup/07-grub-boot-menu.png) *(optional)*
+![08 first successful login](docs/setup/08-first-successful-login.png)
 
 After first boot, the dual-adapter design was validated:
 
@@ -111,7 +111,7 @@ ip a
 
 Two interfaces confirmed: `enp0s3` (NAT, `10.0.2.15`) and `enp0s8` (Host-only, `192.168.56.104`).
 
-> 📸 `docs/setup/09-cek-ip-address-vm.png`
+![09 cek ip address vm](docs/setup/09-cek-ip-address-vm.png)
 
 **Troubleshooting note:** during setup, an accidental **hard power-off** of the VM (instead of a graceful shutdown) later caused Wazuh's internal database service to fail on the next boot — see Phase 6 for the full recovery process. This reinforced the importance of graceful shutdowns for stateful services.
 
@@ -123,8 +123,8 @@ sudo systemctl enable --now ssh
 sudo systemctl status ssh
 ```
 
-> 📸 `docs/setup/17-ssh-server-wazuh-server.png`
-> 📸 `docs/setup/18-ssh-login-dari-windows.png`
+![17 ssh server wazuh server](docs/setup/17-ssh-server-wazuh-server.png)
+![18 ssh login dari windows](docs/setup/18-ssh-login-dari-windows.png)
 
 **Result:** A working Ubuntu Server VM with verified dual-network connectivity and remote SSH access, ready for Wazuh installation.
 
@@ -150,12 +150,12 @@ The first install attempt failed:
 Job for wazuh-indexer.service failed because a timeout was exceeded.
 ```
 
-> 📸 `docs/setup/10-instalasi-wazuh-gagal-timeout.png`
+![10 instalasi wazuh gagal timeout](docs/setup/10-instalasi-wazuh-gagal-timeout.png)
 
 Root cause analysis: Wazuh Indexer is OpenSearch/Java-based and requires substantial CPU/RAM during its first JVM startup. The original allocation (4 GB RAM / 2 vCPU) was insufficient in a virtualized environment. Resources were increased to **8 GB RAM / 4 vCPU** (the host had 32 GB physical RAM available, so this was safe).
 
-> 📸 `docs/setup/11-troubleshoot-ram-8gb.png`
-> 📸 `docs/setup/12-troubleshoot-cpu-4core.png`
+![11 troubleshoot ram 8gb](docs/setup/11-troubleshoot-ram-8gb.png)
+![12 troubleshoot cpu 4core](docs/setup/12-troubleshoot-cpu-4core.png)
 
 Re-running the installer succeeded on the second attempt:
 
@@ -166,8 +166,8 @@ Re-running the installer succeeded on the second attempt:
 25/07/2026 01:47:44 INFO: Installation finished.
 ```
 
-> 📸 `docs/setup/13-instalasi-wazuh-berhasil.png`
-> 📸 `docs/setup/14-cek-ip-setelah-instalasi.png`
+![13 instalasi wazuh berhasil](docs/setup/13-instalasi-wazuh-berhasil.png)
+![14 cek ip setelah instalasi](docs/setup/14-cek-ip-setelah-instalasi.png)
 
 The dashboard was accessed over HTTPS from the Windows host via the Host-only IP (accepting the self-signed certificate warning, expected since Wazuh generates its own SSL cert):
 
@@ -175,8 +175,8 @@ The dashboard was accessed over HTTPS from the Windows host via the Host-only IP
 https://192.168.56.104
 ```
 
-> 📸 `docs/setup/15-login-page-wazuh-dashboard.png`
-> 📸 `docs/setup/16-wazuh-dashboard-overview.png`
+![15 login page wazuh dashboard](docs/setup/15-login-page-wazuh-dashboard.png)
+![16 wazuh dashboard overview](docs/setup/16-wazuh-dashboard-overview.png)
 
 **Result:** A fully running Wazuh all-in-one instance, accessible from the host browser, already generating baseline self-monitoring alerts (Wazuh Manager monitors its own host by default via an internal agent).
 
@@ -189,27 +189,27 @@ https://192.168.56.104
 **Approach:**
 A second VM (`endpoint-linux-wazuh`, 2 GB RAM / 2 vCPU / 20 GB) was built from a fresh Ubuntu Server ISO (rather than cloning `wazuh-server`, since a clone would have carried over the full Manager/Indexer/Dashboard stack — unnecessarily heavy for a lightweight monitored endpoint) using identical dual-adapter networking so it would land on the same `192.168.56.0/24` subnet.
 
-> 📸 `endpoints/linux-agent/00-vm-name-and-os-selection.png`
-> 📸 `endpoints/linux-agent/01-unattended-install-config.png`
-> 📸 `endpoints/linux-agent/02-vm-hardware-allocation.png`
-> 📸 `endpoints/linux-agent/03-vm-hard-disk-config.png`
-> 📸 `endpoints/linux-agent/04-network-adapter1-nat.png`
-> 📸 `endpoints/linux-agent/05-network-adapter2-hostonly.png`
-> 📸 `endpoints/linux-agent/06-first-successful-login.png`
-> 📸 `endpoints/linux-agent/07-cek-ip-address-vm.png`
+![00 vm name and os selection](endpoints/linux-agent/00-vm-name-and-os-selection.png)
+![01 unattended install config](endpoints/linux-agent/01-unattended-install-config.png)
+![02 vm hardware allocation](endpoints/linux-agent/02-vm-hardware-allocation.png)
+![03 vm hard disk config](endpoints/linux-agent/03-vm-hard-disk-config.png)
+![04 network adapter1 nat](endpoints/linux-agent/04-network-adapter1-nat.png)
+![05 network adapter2 hostonly](endpoints/linux-agent/05-network-adapter2-hostonly.png)
+![06 first successful login](endpoints/linux-agent/06-first-successful-login.png)
+![07 cek ip address vm](endpoints/linux-agent/07-cek-ip-address-vm.png)
 
 Connectivity between the two VMs (`192.168.56.106` ↔ `192.168.56.104`) was validated with `ping` before installing the agent:
 
-> 📸 `endpoints/linux-agent/08-ping-test-ke-wazuh-server.png`
+![08 ping test ke wazuh server](endpoints/linux-agent/08-ping-test-ke-wazuh-server.png)
 
 **Troubleshooting — boot order:** after a first reboot, the VM briefly failed to boot from disk and attempted PXE network boot instead (`PXE-E06: Option ROM requires DDIM support`). This was resolved by confirming Hard Disk was the top boot priority in VirtualBox → System → Motherboard.
 
-> 📸 `endpoints/linux-agent/09-fix-boot-order.png`
+![09 fix boot order](endpoints/linux-agent/09-fix-boot-order.png)
 
 OpenSSH was enabled here as well, for the same remote-administration reasons as Phase 1:
 
-> 📸 `endpoints/linux-agent/10-ssh-server-setup.png`
-> 📸 `endpoints/linux-agent/11-ssh-login-dari-windows.png`
+![10 ssh server setup](endpoints/linux-agent/10-ssh-server-setup.png)
+![11 ssh login dari windows](endpoints/linux-agent/11-ssh-login-dari-windows.png)
 
 The Wazuh Agent repository and package were installed manually (unlike the Manager, the Agent does not come with a repo pre-configured):
 
@@ -224,13 +224,13 @@ echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4
 sudo apt update
 ```
 
-> 📸 `endpoints/linux-agent/12-setup-repository-wazuh.png`
+![12 setup repository wazuh](endpoints/linux-agent/12-setup-repository-wazuh.png)
 
 ```bash
 WAZUH_MANAGER="192.168.56.104" sudo apt-get install wazuh-agent -y
 ```
 
-> 📸 `endpoints/linux-agent/13-instalasi-wazuh-agent-berhasil.png`
+![13 instalasi wazuh agent berhasil](endpoints/linux-agent/13-instalasi-wazuh-agent-berhasil.png)
 
 **Troubleshooting — environment variable dropped by `sudo`:** the agent installed but failed to start:
 
@@ -241,7 +241,7 @@ ERROR: (1215): No client configured.
 
 Root cause: `sudo` resets the calling shell's environment by default, so `WAZUH_MANAGER=...` placed **before** `sudo` never reached the privileged process. The correct order would have been `sudo WAZUH_MANAGER="..." apt-get install ...`. As an equally valid fix, the Manager address was instead set directly in the agent's config file:
 
-> 📸 `endpoints/linux-agent/14-error-agent-gagal-start.png`
+![14 error agent gagal start](endpoints/linux-agent/14-error-agent-gagal-start.png)
 
 ```bash
 sudo nano /var/ossec/etc/ossec.conf
@@ -250,14 +250,14 @@ sudo systemctl restart wazuh-agent
 sudo systemctl status wazuh-agent
 ```
 
-> 📸 `endpoints/linux-agent/15-edit-ossec-conf.png`
-> 📸 `endpoints/linux-agent/16-config-address-manager.png`
-> 📸 `endpoints/linux-agent/17-agent-berhasil-running.png`
+![15 edit ossec conf](endpoints/linux-agent/15-edit-ossec-conf.png)
+![16 config address manager](endpoints/linux-agent/16-config-address-manager.png)
+![17 agent berhasil running](endpoints/linux-agent/17-agent-berhasil-running.png)
 
 **Result:** the agent registered successfully and appeared as **Active** in the Wazuh Dashboard.
 
-> 📸 `endpoints/linux-agent/18-agent-terdaftar-di-dashboard.png`
-> 📸 `endpoints/linux-agent/19-overview-agent-active.png`
+![18 agent terdaftar di dashboard](endpoints/linux-agent/18-agent-terdaftar-di-dashboard.png)
+![19 overview agent active](endpoints/linux-agent/19-overview-agent-active.png)
 
 ---
 
@@ -268,12 +268,12 @@ sudo systemctl status wazuh-agent
 **Approach:**
 The per-agent detail page (`Endpoints → endpoint-linux-wazuh`) was reviewed, showing system inventory, event-count evolution, MITRE ATT&CK mapping, vulnerability detection, and a Security Configuration Assessment (CIS Ubuntu 24.04 Benchmark) that ran automatically on agent registration.
 
-> 📸 `endpoints/linux-agent/20-detail-agent-dashboard.png`
+![20 detail agent dashboard](endpoints/linux-agent/20-detail-agent-dashboard.png)
 
 The **Threat Hunting** module (Dashboard + Events tabs) was used to confirm raw, searchable log entries existed for the new agent (not just aggregate counters), including CIS benchmark findings and standard authentication/session events.
 
-> 📸 `endpoints/linux-agent/21-threat-hunting-dashboard.png`
-> 📸 `endpoints/linux-agent/22-threat-hunting-events-log.png`
+![21 threat hunting dashboard](endpoints/linux-agent/21-threat-hunting-dashboard.png)
+![22 threat hunting events log](endpoints/linux-agent/22-threat-hunting-events-log.png)
 
 **Result:** confirmed the full ingestion pipeline (Agent → Manager → Indexer → Dashboard) was functioning end-to-end for the new endpoint.
 
@@ -297,11 +297,11 @@ EOF
 head -n 10 /usr/share/wordlists/rockyou.txt > passwordssshbf.txt
 ```
 
-> 📸 `attack-simulation/ssh-bruteforce/00-kali-network-check.png`
-> 📸 `attack-simulation/ssh-bruteforce/01-struktur-folder.png`
-> 📸 `attack-simulation/ssh-bruteforce/02-buat-file-username.png`
-> 📸 `attack-simulation/ssh-bruteforce/03-cek-wordlist-password.png`
-> 📸 `attack-simulation/ssh-bruteforce/04-generate-passwords-list.png`
+![00 kali network check](attack-simulation/ssh-bruteforce/00-kali-network-check.png)
+![01 struktur folder](attack-simulation/ssh-bruteforce/01-struktur-folder.png)
+![02 buat file username](attack-simulation/ssh-bruteforce/02-buat-file-username.png)
+![03 cek wordlist password](attack-simulation/ssh-bruteforce/03-cek-wordlist-password.png)
+![04 generate passwords list](attack-simulation/ssh-bruteforce/04-generate-passwords-list.png)
 
 An initial run with the full 1,000-line password list and `-t 4` threads was estimated by Hydra at **~52 hours to complete** (SSH's per-attempt cryptographic handshake makes brute-forcing inherently slow, unlike lighter protocols). The wordlist was trimmed to 10 lines and thread count raised to `-t 16`, reducing runtime to under 30 seconds:
 
@@ -314,7 +314,7 @@ hydra -L sshbf.txt -P passwordssshbf.txt -t 16 192.168.56.104 ssh
 1 of 1 target completed, 0 valid password found
 ```
 
-> 📸 `attack-simulation/ssh-bruteforce/05-eksekusi-hydra-selesai.png`
+![05 eksekusi hydra selesai](attack-simulation/ssh-bruteforce/05-eksekusi-hydra-selesai.png)
 
 **Approach — Method B: manual scripted loop (from `endpoint-linux-wazuh`)**
 A second, sequential (non-parallel) attack was scripted using `sshpass` to compare detection behavior against Hydra's parallel approach:
@@ -342,10 +342,10 @@ done
 
 Both methods also generated large volumes of the low-severity **rule 5710** (*sshd: Attempt to login using a non-existent user*, level 5) — this became the central "noise" problem addressed in Phase 6.
 
-> 📸 `attack-simulation/ssh-bruteforce/06-wazuh-detect-bruteforce-attack.png`
-> 📸 `attack-simulation/ssh-bruteforce/07-event-log-detail-bruteforce.png`
-> 📸 `attack-simulation/ssh-bruteforce/08-ssh-loop-manual-berhasil.png`
-> 📸 `attack-simulation/ssh-bruteforce/09-deteksi-manual-bruteforce-rule-berbeda.png`
+![06 wazuh detect bruteforce attack](attack-simulation/ssh-bruteforce/06-wazuh-detect-bruteforce-attack.png)
+![07 event log detail bruteforce](attack-simulation/ssh-bruteforce/07-event-log-detail-bruteforce.png)
+![08 ssh loop manual berhasil](attack-simulation/ssh-bruteforce/08-ssh-loop-manual-berhasil.png)
+![09 deteksi manual bruteforce rule berbeda](attack-simulation/ssh-bruteforce/09-deteksi-manual-bruteforce-rule-berbeda.png)
 
 Wazuh's MITRE ATT&CK mapping automatically classified the traffic under **T1110 (Brute Force)** / **Password Guessing / SSH**, confirming the SIEM's built-in threat-intelligence enrichment.
 
@@ -376,8 +376,8 @@ First iteration:
 </rule>
 ```
 
-> 📸 `docs/alerts/00-cek-local-rules-default.png`
-> 📸 `docs/alerts/01-custom-rule-100002-final.png`
+![00 cek local rules default](docs/alerts/00-cek-local-rules-default.png)
+![01 custom rule 100002 final](docs/alerts/01-custom-rule-100002-final.png)
 
 Validated (without needing a full service restart) using Wazuh's built-in rule tester:
 
@@ -385,7 +385,7 @@ Validated (without needing a full service restart) using Wazuh's built-in rule t
 sudo /var/ossec/bin/wazuh-logtest
 ```
 
-> 📸 `docs/alerts/02-validasi-rule-logtest.png`
+![02 validasi rule logtest](docs/alerts/02-validasi-rule-logtest.png)
 
 **Troubleshooting — Wazuh Manager not running (from a prior ungraceful shutdown):** `wazuh-logtest` failed with `Wazuh-logtest error when connecting with wazuh-analysisd`. Investigation revealed the Manager had crashed after the VM was hard-powered-off in an earlier session, leaving `wazuh-db` and other core services down while `wazuh-authd`/`wazuh-apid` remained stuck in a partially-running state:
 
@@ -397,10 +397,10 @@ sudo /var/ossec/bin/wazuh-control status
 # wazuh-db not running...
 ```
 
-> 📸 `docs/alerts/03-error-logtest-dan-status-awal.png`
-> 📸 `docs/alerts/04-cek-ossec-log-error.png`
-> 📸 `docs/alerts/05-cek-status-komponen-wazuh.png`
-> 📸 `docs/alerts/06-filter-log-wazuh-db.png`
+![03 error logtest dan status awal](docs/alerts/03-error-logtest-dan-status-awal.png)
+![04 cek ossec log error](docs/alerts/04-cek-ossec-log-error.png)
+![05 cek status komponen wazuh](docs/alerts/05-cek-status-komponen-wazuh.png)
+![06 filter log wazuh db](docs/alerts/06-filter-log-wazuh-db.png)
 
 The fix was a full, explicit stop → verify → start cycle (a plain `systemctl restart` alone was later found to be insufficient — see below):
 
@@ -411,15 +411,15 @@ sudo /var/ossec/bin/wazuh-control start
 sudo /var/ossec/bin/wazuh-control status   # confirm core services "is running"
 ```
 
-> 📸 `docs/alerts/07-stop-semua-service-wazuh.png`
-> 📸 `docs/alerts/08-verifikasi-semua-service-mati.png`
-> 📸 `docs/alerts/09-start-ulang-service-wazuh.png`
-> 📸 `docs/alerts/10-verifikasi-service-berhasil-running.png`
+![07 stop semua service wazuh](docs/alerts/07-stop-semua-service-wazuh.png)
+![08 verifikasi semua service mati](docs/alerts/08-verifikasi-semua-service-mati.png)
+![09 start ulang service wazuh](docs/alerts/09-start-ulang-service-wazuh.png)
+![10 verifikasi service berhasil running](docs/alerts/10-verifikasi-service-berhasil-running.png)
 
 **Iterative rule testing:** feeding the same sample SSH log into `wazuh-logtest` repeatedly (simulating repeated attempts) revealed an important discovery — **rule 100002 never fired**. Instead, Wazuh's own **built-in rule 5712** (also frequency-based, threshold of 8) fired first and "consumed" the correlated event window before the custom rule could trigger:
 
-> 📸 `docs/alerts/11-test-logtest-1x-percobaan-rule-5710.png`
-> 📸 `docs/alerts/12-logtest-rule-bawaan-5712-menang-duluan.png`
+![11 test logtest 1x percobaan rule 5710](docs/alerts/11-test-logtest-1x-percobaan-rule-5710.png)
+![12 logtest rule bawaan 5712 menang duluan](docs/alerts/12-logtest-rule-bawaan-5712-menang-duluan.png)
 
 This was an important tuning insight: a custom rule with an identical threshold to an existing built-in rule is redundant. To make the custom rule meaningfully **faster** than Wazuh's stock detection, the frequency was lowered from 8 to **5** — sensitive enough to beat the default, but still high enough to avoid flagging normal human typos:
 
@@ -431,17 +431,17 @@ This was an important tuning insight: a custom rule with an identical threshold 
 </rule>
 ```
 
-> 📸 `docs/alerts/13-revisi-frequency-jadi-5.png`
+![13 revisi frequency jadi 5](docs/alerts/13-revisi-frequency-jadi-5.png)
 
 Re-tested — rule `100002` fired correctly on the 5th repeated attempt this time:
 
-> 📸 `docs/alerts/14-custom-rule-berhasil-trigger.png`
+![14 custom rule berhasil trigger](docs/alerts/14-custom-rule-berhasil-trigger.png)
 
 The Manager was fully restarted to load the change into production (again using the full `wazuh-control stop`/`start` cycle rather than `systemctl restart`, after confirming the latter can silently skip reloading `wazuh-analysisd`):
 
-> 📸 `docs/alerts/15-restart-wazuh-manager-berhasil.png`
-> 📸 `docs/alerts/18-full-stop-wazuh-manager.png`
-> 📸 `docs/alerts/19-full-start-wazuh-manager-berhasil.png`
+![15 restart wazuh manager berhasil](docs/alerts/15-restart-wazuh-manager-berhasil.png)
+![18 full stop wazuh manager](docs/alerts/18-full-stop-wazuh-manager.png)
+![19 full start wazuh manager berhasil](docs/alerts/19-full-start-wazuh-manager-berhasil.png)
 
 **Live validation:** both attack methods (Hydra and the manual script) were re-run against `wazuh-server` and the results checked against a live Dashboard query:
 
@@ -449,11 +449,11 @@ The Manager was fully restarted to load the change into production (again using 
 rule.id: 100002
 ```
 
-> 📸 `docs/alerts/16-validasi-serangan-manual-setelah-tuning.png`
-> 📸 `docs/alerts/17-validasi-serangan-hydra-setelah-tuning.png`
-> 📸 `docs/alerts/20-validasi-final-serangan-manual.png`
-> 📸 `docs/alerts/21-validasi-final-serangan-hydra.png`
-> 📸 `docs/alerts/22-validasi-final-custom-rule-berhasil-di-dashboard.png`
+![16 validasi serangan manual setelah tuning](docs/alerts/16-validasi-serangan-manual-setelah-tuning.png)
+![17 validasi serangan hydra setelah tuning](docs/alerts/17-validasi-serangan-hydra-setelah-tuning.png)
+![20 validasi final serangan manual](docs/alerts/20-validasi-final-serangan-manual.png)
+![21 validasi final serangan hydra](docs/alerts/21-validasi-final-serangan-hydra.png)
+![22 validasi final custom rule berhasil di dashboard](docs/alerts/22-validasi-final-custom-rule-berhasil-di-dashboard.png)
 
 **Result:** custom rule `100002` fired **6 times** in the Dashboard, all at level 10. The math checked out: of the 50 total login attempts across both attack methods, only 30 used a genuinely non-existent username (the rest used the valid `wazuh` username with a wrong password, which is handled by a different rule path) — `30 ÷ 5 (frequency) = 6` alerts, exactly matching the observed count. This confirmed the custom rule was firing correctly, not randomly.
 
@@ -473,7 +473,7 @@ Before enabling blocking, a whitelist of hosts that must never be blocked was id
 - `192.168.56.106` (`endpoint-linux-wazuh`, self)
 - `192.168.56.1` (the Windows host's Host-only adapter IP, used for all remote SSH administration)
 
-> 📸 `docs/active-response/00-cek-ip-windows-host.png`
+![00 cek ip windows host](docs/active-response/00-cek-ip-windows-host.png)
 
 Wazuh ships a set of pre-registered Active Response commands (`firewall-drop`, `disable-account`, `host-deny`, `route-null`, etc.) — conceptually similar to pre-defined functions that only need to be "called" by name, rather than written from scratch. `firewall-drop` was selected, which manages `iptables` rules automatically.
 
@@ -490,12 +490,12 @@ Wazuh ships a set of pre-registered Active Response commands (`firewall-drop`, `
 
 `location: defined-agent` (targeting a specific agent ID) was chosen over `location: all` for this stage of the lab — with only one endpoint currently deployed, the practical effect is identical, but `defined-agent` gives tighter, more auditable control while the detection logic is still being validated. `location: all` was noted as a stronger fit for a lab with multiple monitored endpoints (documented under Next Steps).
 
-> 📸 `docs/active-response/01-tambah-config-active-response.png`
+![01 tambah config active response](docs/active-response/01-tambah-config-active-response.png)
 
 The Manager was restarted using the same full stop/start cycle established in Phase 6:
 
-> 📸 `docs/active-response/02-full-stop-wazuh-manager.png`
-> 📸 `docs/active-response/03-full-start-wazuh-manager-berhasil.png`
+![02 full stop wazuh manager](docs/active-response/02-full-stop-wazuh-manager.png)
+![03 full start wazuh manager berhasil](docs/active-response/03-full-start-wazuh-manager-berhasil.png)
 
 **Validation — automatic block:**
 
@@ -505,11 +505,11 @@ hydra -L sshbf.txt -P passwordssshbf.txt -t 16 192.168.56.106 ssh
 
 The Dashboard confirmed the full detection chain firing in sequence: `5710` (noise) → `100002` (tuned correlation) → **`651` — "Host Blocked by firewall-drop Active Response."**
 
-> 📸 `docs/active-response/04-dashboard-active-response-berhasil.png`
+![04 dashboard active response berhasil](docs/active-response/04-dashboard-active-response-berhasil.png)
 
 A subsequent SSH attempt from Kali hung indefinitely with no error message — expected behavior for an `iptables DROP` rule (as opposed to `REJECT`), which silently discards packets rather than notifying the sender, denying the attacker even the information that they have been blocked:
 
-> 📸 `docs/active-response/05-kali-terblokir-ssh-hang.png`
+![05 kali terblokir ssh hang](docs/active-response/05-kali-terblokir-ssh-hang.png)
 
 Confirmed directly on the endpoint's firewall table:
 
@@ -522,11 +522,11 @@ num  target     prot opt source               destination
 1    DROP       0    --  192.168.56.102       0.0.0.0/0
 ```
 
-> 📸 `docs/active-response/06-iptables-rule-block-verified.png`
+![06 iptables rule block verified](docs/active-response/06-iptables-rule-block-verified.png)
 
 **Validation — automatic unblock (timeout):** the block was confirmed present shortly after the attack, then re-checked several minutes later and found to have been automatically removed by Wazuh once the configured `600`-second timeout elapsed — with no manual intervention:
 
-> 📸 `docs/active-response/07-verifikasi-auto-unblock-timeout.png`
+![07 verifikasi auto unblock timeout](docs/active-response/07-verifikasi-auto-unblock-timeout.png)
 
 **Validation — manual unblock:** a fresh attack was triggered to re-populate the block, and the rule was then removed manually before its timeout expired, to confirm an administrator can always intervene early if needed:
 
@@ -537,12 +537,12 @@ sudo iptables -D INPUT 1                   # delete rule #1
 sudo iptables -L INPUT -n --line-numbers   # confirm empty again
 ```
 
-> 📸 `docs/active-response/08-serangan-ulang-untuk-test-unblock.png`
-> 📸 `docs/active-response/09-unblock-manual-berhasil.png`
+![08 serangan ulang untuk test unblock](docs/active-response/08-serangan-ulang-untuk-test-unblock.png)
+![09 unblock manual berhasil](docs/active-response/09-unblock-manual-berhasil.png)
 
 A final SSH attempt from Kali confirmed access was restored (host key verification prompt appeared, followed by a normal password prompt — no hang):
 
-> 📸 `docs/active-response/10-verifikasi-akses-normal-setelah-unblock.png`
+![10 verifikasi akses normal setelah unblock](docs/active-response/10-verifikasi-akses-normal-setelah-unblock.png)
 
 **Result:** a fully closed-loop, automated blue-team pipeline was demonstrated end-to-end: detection → correlation → tuned escalation → automated containment → automatic and manual reversal — without any manual intervention required during the active-block phase.
 
@@ -560,8 +560,8 @@ The complete kill-chain was validated live against the Wazuh Dashboard, in this 
 6. Block is automatically removed after 600 seconds, **or** manually removed via `iptables -D`
 7. Access is confirmed restored after unblock
 
-> 📸 `docs/active-response/06-iptables-rule-block-verified.png`
-> 📸 `docs/active-response/10-verifikasi-akses-normal-setelah-unblock.png`
+![06 iptables rule block verified](docs/active-response/06-iptables-rule-block-verified.png)
+![10 verifikasi akses normal setelah unblock](docs/active-response/10-verifikasi-akses-normal-setelah-unblock.png)
 
 ---
 
