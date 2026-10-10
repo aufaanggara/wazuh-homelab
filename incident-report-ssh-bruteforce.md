@@ -56,15 +56,15 @@ Between **27–30 July 2026**, the monitored endpoint `endpoint-linux-wazuh` (`1
 ### Phase 1 — Baseline Detection Review
 The investigation began by reviewing Wazuh's default behavior against unauthenticated SSH login attempts. Using the Dashboard's **Threat Hunting → Events** view filtered on `rule.groups: authentication_failed`, it was observed that rule `5710` (*sshd: Attempt to login using a non-existent user*, level 5) fired on **every single failed attempt** — nearly 2,000 events for the test campaigns run so far — while Wazuh's own built-in correlation rule `5712` only escalated after **8** matching events.
 
-![12 logtest rule bawaan 5712 menang duluan](docs/alerts/12-logtest-rule-bawaan-5712-menang-duluan.png)
+<img src="docs/alerts/12-logtest-rule-bawaan-5712-menang-duluan.png" width="700">
 
 This volume of low-severity noise was identified as a textbook case of **alert fatigue**: a SOC analyst reviewing this feed daily would be forced to scroll past thousands of level-5 entries to find the handful of genuinely escalated alerts, increasing the risk that a real attack is missed or dismissed.
 
 ### Phase 2 — Custom Detection Rule Authoring
 A custom rule was authored in `/var/ossec/etc/rules/local_rules.xml` (ID `100002`, above Wazuh's reserved ID range of 100000) that correlates repeated `5710` events using `<if_matched_sid>` with `frequency=5` and `timeframe=120`. This was validated locally with `wazuh-logtest` before deployment, iterating through several rule-syntax errors (`<if_sid>` vs. `<if_matched_sid>`, missing `frequency`/`timeframe` attributes) before the rule fired correctly on the 5th simulated event.
 
-![01 custom rule 100002 final](docs/alerts/01-custom-rule-100002-final.png)
-![14 custom rule berhasil trigger](docs/alerts/14-custom-rule-berhasil-trigger.png)
+<img src="docs/alerts/01-custom-rule-100002-final.png" width="700">
+<img src="docs/alerts/14-custom-rule-berhasil-trigger.png" width="700">
 
 An important finding during this phase: the custom rule initially used `frequency=8` (matching Wazuh's built-in `5712`) and **never fired**, because `5712` consumed the correlated event window first. Lowering the threshold to `5` allowed the custom rule to win the race and fire *before* the stock detection — the actual mechanism by which "faster detection" was achieved.
 
@@ -91,12 +91,12 @@ hydra -L sshbf.txt -P passwordssshbf.txt -t 16 192.168.56.106 ssh
 ./ssh_bruteforce_manual.sh
 ```
 
-![05 eksekusi hydra selesai](attack-simulation/ssh-bruteforce/05-eksekusi-hydra-selesai.png)
-![08 ssh loop manual berhasil](attack-simulation/ssh-bruteforce/08-ssh-loop-manual-berhasil.png)
+<img src="attack-simulation/ssh-bruteforce/05-eksekusi-hydra-selesai.png" width="700">
+<img src="attack-simulation/ssh-bruteforce/08-ssh-loop-manual-berhasil.png" width="700">
 
 Querying the Dashboard for `rule.id: 100002` confirmed **6 alerts** fired at level 10 — matching the expected math (30 of 50 total attempts used a genuinely non-existent username; `30 ÷ 5 = 6`).
 
-![22 validasi final custom rule berhasil di dashboard](docs/alerts/22-validasi-final-custom-rule-berhasil-di-dashboard.png)
+<img src="docs/alerts/22-validasi-final-custom-rule-berhasil-di-dashboard.png" width="700">
 
 ### Phase 4 — Automated Containment (Active Response)
 An Active Response binding was configured on `wazuh-server` so that any firing of rule `100002` would trigger the built-in `firewall-drop` command against the specific agent (`defined-agent`, agent ID `001` = `endpoint-linux-wazuh`):
@@ -112,7 +112,7 @@ An Active Response binding was configured on `wazuh-server` so that any firing o
 </active-response>
 ```
 
-![01 tambah config active response](docs/active-response/01-tambah-config-active-response.png)
+<img src="docs/active-response/01-tambah-config-active-response.png" width="700">
 
 A trusted-host whitelist was established prior to enabling this response, to prevent the automated containment from ever blocking legitimate infrastructure:
 - `192.168.56.104` (Wazuh Manager itself)
@@ -121,8 +121,8 @@ A trusted-host whitelist was established prior to enabling this response, to pre
 
 Re-running the brute-force campaign confirmed the full detection → response chain fired correctly:
 
-![04 dashboard active response berhasil](docs/active-response/04-dashboard-active-response-berhasil.png)
-![06 iptables rule block verified](docs/active-response/06-iptables-rule-block-verified.png)
+<img src="docs/active-response/04-dashboard-active-response-berhasil.png" width="700">
+<img src="docs/active-response/06-iptables-rule-block-verified.png" width="700">
 
 ```bash
 sudo iptables -L INPUT -n --line-numbers
@@ -132,9 +132,9 @@ sudo iptables -L INPUT -n --line-numbers
 ### Phase 5 — Response Reversal Validation
 Both the automatic (timeout-based) and manual unblock paths were validated to confirm the containment does not become a permanent, unmanageable denial-of-service against the attacker IP (which, in a real environment, could later belong to a legitimate rotated/dynamic address):
 
-![07 verifikasi auto unblock timeout](docs/active-response/07-verifikasi-auto-unblock-timeout.png) — automatic unblock confirmed after 600s
-![09 unblock manual berhasil](docs/active-response/09-unblock-manual-berhasil.png) — manual unblock via `iptables -D INPUT 1`
-![10 verifikasi akses normal setelah unblock](docs/active-response/10-verifikasi-akses-normal-setelah-unblock.png) — SSH access confirmed restored post-unblock
+<img src="docs/active-response/07-verifikasi-auto-unblock-timeout.png" width="700"> — automatic unblock confirmed after 600s
+<img src="docs/active-response/09-unblock-manual-berhasil.png" width="700"> — manual unblock via `iptables -D INPUT 1`
+<img src="docs/active-response/10-verifikasi-akses-normal-setelah-unblock.png" width="700"> — SSH access confirmed restored post-unblock
 
 ---
 
