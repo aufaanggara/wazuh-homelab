@@ -1,66 +1,81 @@
-# SIEM Log Analysis & Alert Tuning — Wazuh Home Lab
+# Wazuh SIEM Home Lab
 
-**Type:** Personal Home Lab Project
-**Category:** Blue Team / SOC / Detection Engineering
-**Stack:** Wazuh 4.14.6 (Manager, Indexer, Dashboard, Agent) · VirtualBox · Ubuntu Server 24.04 · Kali Linux
-
-A hands-on home lab simulating the core workflow of a SOC Analyst / Detection Engineer: deploy a SIEM, forward logs from a monitored endpoint, generate realistic attack traffic, analyze the resulting alerts, tune detection rules to cut noise, and automate a defensive response.
-
-Inspired by a TryHackMe "Project 01" prompt — *"Deploy Splunk, ELK, or Wazuh to collect and correlate logs across your environment, then tune alert thresholds to cut the noise and surface real threats faster."*
+Home lab deploying and tuning a Wazuh SIEM — from infrastructure setup to automated attack detection and response.
 
 ---
 
-## Lab Topology
+## Deskripsi
 
-<img src="docs/setup/06-network-adapter2-hostonly.png" width="700">
+Project ini mensimulasikan workflow SOC Analyst/Detection Engineer end-to-end: membangun infrastruktur SIEM terisolasi, menghubungkan endpoint yang dipantau, men-generate serangan SSH brute force nyata, menganalisis alert, menulis custom detection rule untuk mempercepat deteksi, dan mengotomasi respons containment. Diinspirasi dari prompt project TryHackMe "SIEM Log Analysis & Alert Tuning", dan dikembangkan lebih jauh dengan tahap Active Response.
 
-| VM | Role | OS | RAM | vCPU | IP |
-|---|---|---|---|---|---|
-| `wazuh-server` | SIEM (Manager + Indexer + Dashboard) | Ubuntu Server 24.04 | 8 GB | 4 | `192.168.56.104` |
-| `endpoint-linux-wazuh` | Monitored endpoint (Wazuh Agent) | Ubuntu Server 24.04 | 2 GB | 2 | `192.168.56.106` |
-| `kali` | Attacker (lab-internal) | Kali Linux | — | — | `192.168.56.102` |
-| Windows Host | Administration | Windows 11 | — | — | `192.168.56.1` |
+## Tech Stack & Tools
 
-All VMs run dual VirtualBox adapters — **NAT** (internet access) + **Host-only** (`192.168.56.0/24`, isolated VM↔VM and VM↔Host communication).
+- **Wazuh 4.14.6** — SIEM stack (Manager, Indexer, Dashboard, Agent)
+- **VirtualBox** — virtualisasi seluruh VM lab
+- **Ubuntu Server 24.04 LTS** — OS Manager dan endpoint
+- **Kali Linux** — mesin attacker simulasi
+- **Hydra** — tool brute force paralel
+- **sshpass** — scripting brute force manual sekuensial
+- **iptables** — mekanisme blocking Active Response
 
----
+## Struktur Folder
 
-## Project Phases
+```
+wazuh-siem-lab/
+├── README.md
+│
+├── writeups/
+│   ├── 01-setup.md
+│   ├── 02-endpoint.md
+│   ├── 03-attack-simulation.md
+│   ├── 04-alert-tuning.md
+│   ├── 05-active-response.md
+│   └── incident-report-ssh-bruteforce.md
+│
+├── assets/
+│   ├── setup/
+│   ├── linux-agent/
+│   ├── windows-agent/
+│   ├── ssh-bruteforce/
+│   ├── alerts/
+│   └── active-response/
+│
+└── notes/
+    ├── troubleshooting.md
+    ├── learning-summary.md
+    └── upgrade-roadmap.md
+```
 
-| # | Phase | Summary | Docs |
-|---|---|---|---|
-| 1–2 | Infrastructure & Wazuh Installation | Built the Manager VM, networking, and installed the full Wazuh all-in-one stack | [`docs/01-setup.md`](docs/01-setup.md) |
-| 3–4 | Endpoint Deployment & Ingestion Verification | Deployed a second VM, registered it as a Wazuh Agent, verified log ingestion end-to-end | [`docs/02-endpoint.md`](docs/02-endpoint.md) |
-| 5 | Attack Simulation | Generated real SSH brute-force traffic (Hydra + manual script) from Kali | [`docs/03-attack-simulation.md`](docs/03-attack-simulation.md) |
-| 6 | Alert & Rule Tuning | Authored a custom correlation rule that detects brute force 37.5% faster than Wazuh's default | [`docs/04-alert-tuning.md`](docs/04-alert-tuning.md) |
-| 7 | Active Response | Automated firewall blocking of attacking IPs, with auto/manual unblock validated | [`docs/05-active-response.md`](docs/05-active-response.md) |
+## Progress
 
-**Related document:** [`incident-report-ssh-bruteforce.md`](incident-report-ssh-bruteforce.md) — a standalone blue-team style Incident Report + Playbook + Detection Rule write-up of the SSH brute-force detection/response exercise, formatted for portfolio review.
+| Fase | Status |
+|---|---|
+| Infrastructure & Environment Setup | ✅ Selesai |
+| Wazuh Installation | ✅ Selesai |
+| Endpoint Deployment & Log Forwarding | ✅ Selesai |
+| Ingestion Verification | ✅ Selesai |
+| Attack Simulation | ✅ Selesai |
+| Alert & Rule Tuning | ✅ Selesai |
+| Active Response | ✅ Selesai |
+| Documentation | ✅ Selesai |
+| Repo Restructuring | 🔄 Berjalan |
+| Windows Endpoint Integration & Upgrades | ⬜ Belum |
 
----
+**Progress keseluruhan: 61%**
 
-## Key Result
+## Dokumentasi
 
-A custom Wazuh correlation rule (`100002`) was authored to detect repeated SSH login attempts using non-existent usernames, escalating to a high-severity alert after **5 failed attempts in 120 seconds** — faster than Wazuh's built-in default threshold of **8 attempts** (rule `5712`). This tuned alert was then bound to an **Active Response** action that automatically blocks the attacking IP via `iptables`, with the block automatically lifted after a 10-minute cooldown (and a validated manual-override path). The full loop — detect → correlate → tune → block → auto-unblock — was validated end-to-end against two independent brute-force methods.
+Writeup lengkap per fase tersedia di folder [`writeups/`](writeups/):
 
-<img src="docs/active-response/04-dashboard-active-response-berhasil.png" width="700">
+1. [Infrastructure Setup & Wazuh Installation](writeups/01-setup.md)
+2. [Endpoint Deployment & Ingestion Verification](writeups/02-endpoint.md)
+3. [Attack Simulation](writeups/03-attack-simulation.md)
+4. [Alert & Rule Tuning](writeups/04-alert-tuning.md)
+5. [Active Response](writeups/05-active-response.md)
+6. [Incident Report — SSH Brute Force](writeups/incident-report-ssh-bruteforce.md) — dokumentasi blue-team style lengkap dengan IOC, timeline, root cause, remediation, playbook, dan detection rule
 
----
+Catatan tambahan (bukan untuk portofolio, referensi pribadi) ada di folder [`notes/`](notes/).
 
-## Lessons Learned
+## Disclaimer
 
-- Alert volume is not a proxy for detection quality — tuning is about *proportional* severity, not just raising more alerts.
-- A custom rule must be checked against existing built-in rules; the real tuning win came from a *tighter* threshold than Wazuh's default, not from writing a rule from scratch.
-- `systemctl restart wazuh-manager` is not always a true restart — a full `wazuh-control stop` → `start` cycle was required to guarantee rule changes were reloaded.
-- `DROP` vs. `REJECT` in Active Response is a deliberate design choice — silently dropping attacker traffic denies them feedback on whether the block succeeded.
-
----
-
-## Future Work
-
-1. Deploy a Windows Agent to demonstrate cross-platform monitoring
-2. Explore active suppression of low-severity noise (beyond adding a correlation layer on top)
-3. Isolate the detection path for "valid username, wrong password" attempts (currently unconfirmed)
-4. Author a fully custom Active Response script
-5. Compare `location: all` vs. `defined-agent` once a second endpoint exists
-6. Run a before/after vulnerability scan comparison post-`apt upgrade`
+Project ini dibuat untuk tujuan pembelajaran dan portofolio pribadi. Seluruh simulasi serangan (brute force, dsb.) dijalankan sepenuhnya di dalam environment lab terisolasi (jaringan VirtualBox Host-only), menargetkan sistem milik sendiri, dan tidak diarahkan ke sistem atau jaringan pihak lain mana pun.
