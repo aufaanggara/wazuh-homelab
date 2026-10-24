@@ -1,6 +1,6 @@
 # Wazuh SIEM Home Lab
 
-Home lab deploying and tuning a Wazuh SIEM — from infrastructure setup to automated attack detection and response.
+Home lab deploying and tuning a Wazuh SIEM from infrastructure setup to automated attack detection and response.
 
 ---
 
@@ -10,20 +10,19 @@ Project ini mensimulasikan workflow SOC Analyst/Detection Engineer end-to-end: m
 
 ## Tech Stack & Tools
 
-- **Wazuh 4.14.6** — SIEM stack (Manager, Indexer, Dashboard, Agent)
-- **VirtualBox** — virtualisasi seluruh VM lab
-- **Ubuntu Server 24.04 LTS** — OS Manager dan endpoint
-- **Kali Linux** — mesin attacker simulasi
-- **Hydra** — tool brute force paralel
-- **sshpass** — scripting brute force manual sekuensial
-- **iptables** — mekanisme blocking Active Response
+- **Wazuh 4.14.6** : SIEM stack (Manager, Indexer, Dashboard, Agent)
+- **VirtualBox** : virtualisasi seluruh VM lab
+- **Ubuntu Server 24.04 LTS** : OS Manager dan endpoint
+- **Kali Linux** : mesin attacker simulasi
+- **Hydra** : tool brute force paralel
+- **sshpass** : scripting brute force manual sekuensial
+- **iptables** : mekanisme blocking Active Response
 
 ## Struktur Folder
 
 ```
 wazuh-siem-lab/
 ├── README.md
-│
 ├── writeups/
 │   ├── 01-setup.md
 │   ├── 02-endpoint.md
@@ -31,7 +30,6 @@ wazuh-siem-lab/
 │   ├── 04-alert-tuning.md
 │   ├── 05-active-response.md
 │   └── incident-report-ssh-bruteforce.md
-│
 ├── assets/
 │   ├── setup/
 │   ├── linux-agent/
@@ -39,11 +37,9 @@ wazuh-siem-lab/
 │   ├── ssh-bruteforce/
 │   ├── alerts/
 │   └── active-response/
-│
 └── notes/
-    ├── troubleshooting.md
-    ├── learning-summary.md
-    └── upgrade-roadmap.md
+    └── troubleshooting.md
+    
 ```
 
 ## Progress
@@ -72,9 +68,8 @@ Writeup lengkap per fase tersedia di folder [`writeups/`](writeups/):
 3. [Attack Simulation](writeups/03-attack-simulation.md)
 4. [Alert & Rule Tuning](writeups/04-alert-tuning.md)
 5. [Active Response](writeups/05-active-response.md)
-6. [Incident Report — SSH Brute Force](writeups/incident-report-ssh-bruteforce.md) — dokumentasi blue-team style lengkap dengan IOC, timeline, root cause, remediation, playbook, dan detection rule
+6. [Incident Report — SSH Brute Force](writeups/incident-report-ssh-bruteforce.md) 
 
-Catatan tambahan (bukan untuk portofolio, referensi pribadi) ada di folder [`notes/`](notes/).
 
 ## Disclaimer
 
