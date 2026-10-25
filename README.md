@@ -61,15 +61,7 @@ wazuh-siem-lab/
 
 ## Dokumentasi
 
-Writeup lengkap per fase tersedia di folder [`writeups/`](writeups/):
-
-1. [Infrastructure Setup & Wazuh Installation](writeups/01-setup.md)
-2. [Endpoint Deployment & Ingestion Verification](writeups/02-endpoint.md)
-3. [Attack Simulation](writeups/03-attack-simulation.md)
-4. [Alert & Rule Tuning](writeups/04-alert-tuning.md)
-5. [Active Response](writeups/05-active-response.md)
-6. [Incident Report — SSH Brute Force](writeups/incident-report-ssh-bruteforce.md) 
-
+Writeup lengkap per fase tersedia di folder [`writeups/`](writeups/).
 
 ## Disclaimer
 
